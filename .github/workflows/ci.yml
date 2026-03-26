@@ -46,22 +46,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  e2e:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          CI: true
+  # e2e job disabled until playwright.config.ts and tests are in place
