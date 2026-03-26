@@ -1,0 +1,714 @@
+openapi: "3.1.0"
+info:
+  title: Merch API
+  version: "1.0.0"
+  description: |
+    API para gestión de merchandising de bandas de música.
+    Gestión de productos, ventas, gastos, stock e informes.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+paths:
+  /api/v1/products:
+    get:
+      tags: [Products]
+      summary: List all products
+      operationId: getProducts
+      parameters:
+        - name: category
+          in: query
+          schema:
+            $ref: "#/components/schemas/ProductCategory"
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      tags: [Products]
+      summary: Create a product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /api/v1/products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Products]
+      summary: Get a product by ID
+      operationId: getProduct
+      responses:
+        "200":
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Products]
+      summary: Update a product
+      operationId: updateProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductRequest"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Products]
+      summary: Delete a product
+      operationId: deleteProduct
+      responses:
+        "204":
+          description: Product deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/products/{id}/image:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Products]
+      summary: Upload product image
+      operationId: uploadProductImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Image uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /api/v1/products/{productId}/stock-movements:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Stock]
+      summary: List stock movements for a product
+      operationId: getStockMovements
+      responses:
+        "200":
+          description: List of stock movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovement"
+    post:
+      tags: [Stock]
+      summary: Create a stock movement (adjust stock)
+      operationId: createStockMovement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStockMovementRequest"
+      responses:
+        "201":
+          description: Stock movement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockMovement"
+
+  /api/v1/sales:
+    get:
+      tags: [Sales]
+      summary: List sales
+      operationId: getSales
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: List of sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sale"
+    post:
+      tags: [Sales]
+      summary: Create a sale
+      operationId: createSale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSaleRequest"
+      responses:
+        "201":
+          description: Sale created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+
+  /api/v1/sales/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Sales]
+      summary: Get a sale by ID
+      operationId: getSale
+      responses:
+        "200":
+          description: Sale found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/expenses:
+    get:
+      tags: [Expenses]
+      summary: List expenses
+      operationId: getExpenses
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: category
+          in: query
+          schema:
+            $ref: "#/components/schemas/ExpenseCategory"
+      responses:
+        "200":
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      tags: [Expenses]
+      summary: Create an expense
+      operationId: createExpense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenseRequest"
+      responses:
+        "201":
+          description: Expense created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /api/v1/expenses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags: [Expenses]
+      summary: Update an expense
+      operationId: updateExpense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateExpenseRequest"
+      responses:
+        "200":
+          description: Expense updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Expenses]
+      summary: Delete an expense
+      operationId: deleteExpense
+      responses:
+        "204":
+          description: Expense deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/reports/summary:
+    get:
+      tags: [Reports]
+      summary: Revenue, expenses and profit summary
+      operationId: getReportSummary
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Report summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportSummary"
+
+  /api/v1/reports/top-products:
+    get:
+      tags: [Reports]
+      summary: Top selling products
+      operationId: getTopProducts
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopProduct"
+
+  /api/v1/reports/stock-value:
+    get:
+      tags: [Reports]
+      summary: Current stock valuation
+      operationId: getStockValue
+      responses:
+        "200":
+          description: Stock valuation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockValuation"
+
+components:
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+
+  schemas:
+    ProductCategory:
+      type: string
+      enum: [CLOTHING, MUSIC, ACCESSORIES, OTHER]
+
+    PaymentMethod:
+      type: string
+      enum: [CASH, CARD, BIZUM]
+
+    ExpenseCategory:
+      type: string
+      enum: [PRODUCTION, TRANSPORT, VENUE, MARKETING, OTHER]
+
+    StockMovementType:
+      type: string
+      enum: [IN, OUT, ADJUSTMENT]
+
+    Product:
+      type: object
+      required: [id, name, category, salePrice, stock, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        sku:
+          type: string
+          nullable: true
+        barcode:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        purchasePrice:
+          type: string
+          description: BigDecimal as string
+        salePrice:
+          type: string
+          description: BigDecimal as string
+        stock:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateProductRequest:
+      type: object
+      required: [name, category, salePrice]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        sku:
+          type: string
+        barcode:
+          type: string
+        purchasePrice:
+          type: string
+        salePrice:
+          type: string
+        stock:
+          type: integer
+          default: 0
+
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        sku:
+          type: string
+        barcode:
+          type: string
+        purchasePrice:
+          type: string
+        salePrice:
+          type: string
+
+    StockMovement:
+      type: object
+      required: [id, productId, type, quantity, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/StockMovementType"
+        quantity:
+          type: integer
+        reason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateStockMovementRequest:
+      type: object
+      required: [type, quantity]
+      properties:
+        type:
+          $ref: "#/components/schemas/StockMovementType"
+        quantity:
+          type: integer
+          minimum: 1
+        reason:
+          type: string
+
+    Sale:
+      type: object
+      required: [id, items, total, paymentMethod, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SaleItem"
+        total:
+          type: string
+          description: BigDecimal as string
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    SaleItem:
+      type: object
+      required: [id, productId, productName, quantity, unitPrice, subtotal]
+      properties:
+        id:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        productName:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: string
+        subtotal:
+          type: string
+
+    CreateSaleRequest:
+      type: object
+      required: [items, paymentMethod]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateSaleItemRequest"
+          minItems: 1
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        notes:
+          type: string
+
+    CreateSaleItemRequest:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+
+    Expense:
+      type: object
+      required: [id, description, amount, category, date, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        amount:
+          type: string
+          description: BigDecimal as string
+        category:
+          $ref: "#/components/schemas/ExpenseCategory"
+        date:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateExpenseRequest:
+      type: object
+      required: [description, amount, category, date]
+      properties:
+        description:
+          type: string
+        amount:
+          type: string
+        category:
+          $ref: "#/components/schemas/ExpenseCategory"
+        date:
+          type: string
+          format: date
+
+    UpdateExpenseRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        amount:
+          type: string
+        category:
+          $ref: "#/components/schemas/ExpenseCategory"
+        date:
+          type: string
+          format: date
+
+    ReportSummary:
+      type: object
+      required: [totalRevenue, totalExpenses, profit, salesCount, period]
+      properties:
+        totalRevenue:
+          type: string
+        totalExpenses:
+          type: string
+        profit:
+          type: string
+        salesCount:
+          type: integer
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date
+            to:
+              type: string
+              format: date
+
+    TopProduct:
+      type: object
+      required: [productId, productName, quantitySold, revenue]
+      properties:
+        productId:
+          type: string
+          format: uuid
+        productName:
+          type: string
+        quantitySold:
+          type: integer
+        revenue:
+          type: string
+
+    StockValuation:
+      type: object
+      required: [totalItems, totalCostValue, totalSaleValue, products]
+      properties:
+        totalItems:
+          type: integer
+        totalCostValue:
+          type: string
+        totalSaleValue:
+          type: string
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: string
+                format: uuid
+              productName:
+                type: string
+              stock:
+                type: integer
+              costValue:
+                type: string
+              saleValue:
+                type: string
+
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        code:
+          type: string
