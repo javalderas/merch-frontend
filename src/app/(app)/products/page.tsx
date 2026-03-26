@@ -61,12 +61,6 @@ export default function ProductsPage() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("ALL")
   const [stockFilter, setStockFilter] = useState<StockFilter>("ALL")
 
-  if (isLoading) return <LoadingSpinner />
-  if (error) return <ErrorFallback onRetry={() => refetch()} />
-
-  const hasActiveFilters =
-    search.trim() !== "" || categoryFilter !== "ALL" || stockFilter !== "ALL"
-
   const filteredProducts = useMemo(() => {
     if (!products) return []
     const q = search.trim().toLowerCase()
@@ -85,6 +79,12 @@ export default function ProductsPage() {
       return true
     })
   }, [products, search, categoryFilter, stockFilter])
+
+  if (isLoading) return <LoadingSpinner />
+  if (error) return <ErrorFallback onRetry={() => refetch()} />
+
+  const hasActiveFilters =
+    search.trim() !== "" || categoryFilter !== "ALL" || stockFilter !== "ALL"
 
   function clearFilters() {
     setSearch("")
